@@ -23,4 +23,9 @@ jobs:
         run: |
           dotnet dev-certs https --trust
           sudo update-ca-certificates
+          NOKV=true dotnet test AspireKeyvaultEmulatorTest.sln --no-build --verbosity normal
+      - name: Test
+        run: |
+          dotnet dev-certs https --trust
+          sudo update-ca-certificates
           dotnet test AspireKeyvaultEmulatorTest.sln --no-build --verbosity normal

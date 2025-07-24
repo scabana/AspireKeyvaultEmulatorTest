@@ -6,12 +6,18 @@ using WireMock.Settings;
 var builder = DistributedApplication.CreateBuilder(args);
 
 var api = builder.AddProject<Projects.Api>("api");
-var kv = builder.AddAzureKeyVault("kv").RunAsEmulator(new KeyVaultEmulatorOptions()
+
+if (Environment.GetEnvironmentVariable("NOKV") != "true")
 {
-  Persist = false,
-  Lifetime = ContainerLifetime.Session,
-  ShouldGenerateCertificates = true,
-});
+  var kv = builder.AddAzureKeyVault("kv").RunAsEmulator(new KeyVaultEmulatorOptions()
+  {
+    Persist = false,
+    Lifetime = ContainerLifetime.Session,
+    ShouldGenerateCertificates = true,
+  });
+
+  api.WithReference(kv).WaitFor(kv);
+}
 
 WireMockServer wireMockServer = WireMockServer.Start(new WireMockServerSettings
 {
@@ -25,6 +31,6 @@ wireMockServer.Given(WireMock.RequestBuilders.Request.Create()
   .WithStatusCode(200)
   .WithBody("Hello from aspire"));
 
-api.WithEnvironment("wiremock", wireMockServer.Url).WithReference(kv).WaitFor(kv);
+api.WithEnvironment("wiremock", wireMockServer.Url);
 
 builder.Build().Run();
