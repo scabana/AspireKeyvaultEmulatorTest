@@ -19,12 +19,12 @@ jobs:
         run: dotnet restore AspireKeyvaultEmulatorTest.sln
       - name: Build
         run: dotnet build AspireKeyvaultEmulatorTest.sln --no-restore
-      - name: Test
+      - name: Test Without KV
         run: |
           dotnet dev-certs https --trust
           sudo update-ca-certificates
           NOKV=true dotnet test AspireKeyvaultEmulatorTest.sln --no-build --verbosity normal
-      - name: Test
+      - name: Test with KV
         run: |
           dotnet dev-certs https --trust
           sudo update-ca-certificates
